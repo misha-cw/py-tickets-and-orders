@@ -59,25 +59,41 @@ class MovieSession(models.Model):
 
 class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="orders")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="orders"
+    )
 
     def __str__(self) -> str:
         return f"{datetime.strftime(self.created_at, '%Y-%m-%d %H:%M:%S')}"
 
-
     class Meta:
         ordering = ["-created_at"]
 
+
 class Ticket(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="tickets")
-    movie_session = models.ForeignKey(MovieSession, on_delete=models.CASCADE, related_name="tickets")
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name="tickets"
+    )
+    movie_session = models.ForeignKey(
+        MovieSession,
+        on_delete=models.CASCADE,
+        related_name="tickets"
+    )
     row = models.IntegerField()
     seat = models.IntegerField()
 
     def __str__(self) -> str:
-        return (f"{self.movie_session.movie.title}"
-                f" {datetime.strftime(self.movie_session.show_time, '%Y-%m-%d %H:%M:%S')} "
-                f"(row: {self.row}, seat: {self.seat})")
+        return (
+            f"{self.movie_session.movie.title} "
+            f"{datetime.strftime(
+                self.movie_session.show_time, '%Y-%m-%d %H:%M:%S'
+            )}"
+            f" (row: {self.row}, seat: {self.seat})"
+        )
 
     def clean(self) -> None:
         if self.row < 1 or self.row > self.movie_session.cinema_hall.rows:
@@ -88,11 +104,13 @@ class Ticket(models.Model):
                 ]}
             )
 
-        if self.seat < 1 or self.seat > self.movie_session.cinema_hall.seats_in_row:
+        if (self.seat < 1
+                or self.seat > self.movie_session.cinema_hall.seats_in_row):
             raise ValidationError(
                 {"seat": [
                     f"seat number must be in available range:"
-                    f" (1, seats_in_row): (1, {self.movie_session.cinema_hall.seats_in_row})"
+                    f" (1, seats_in_row):"
+                    f" (1, {self.movie_session.cinema_hall.seats_in_row})"
                 ]}
             )
 
