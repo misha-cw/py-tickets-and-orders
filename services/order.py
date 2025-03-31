@@ -18,9 +18,8 @@ def create_order(
     )
 
     if date:
-        get_orders(username).update(
-            created_at=date
-        )
+        order.created_at = date
+        order.save()
 
     order.refresh_from_db()
 
