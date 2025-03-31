@@ -21,8 +21,6 @@ def create_order(
         order.created_at = date
         order.save()
 
-    order.refresh_from_db()
-
     Ticket.objects.bulk_create(Ticket(
         order_id=order.pk,
         movie_session=MovieSession.objects.get(id=ticket["movie_session"]),
